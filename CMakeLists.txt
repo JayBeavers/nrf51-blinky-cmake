@@ -1,16 +1,13 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.5)
 
 include (CMakeForceCompiler)
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR cortex-m0plus)
 set(CMAKE_INCLUDE_PATH "")
-enable_language(ASM)
 
 project(nrf51822_xxac)
 
-CMAKE_FORCE_C_COMPILER(/usr/local/gcc-arm-none-eabi-4_9-2015q2/bin/arm-none-eabi-gcc GNU)
-
-set(tools /usr/local/gcc-arm-none-eabi-4_9-2015q2)
+set(tools /usr/local/gcc-arm-none-eabi-5_2-2015q4)
 set(CMAKE_CXX_COMPILER  ${tools}/bin/arm-none-eabi-g++)
 set(CMAKE_C_COMPILER    ${tools}/bin/arm-none-eabi-gcc)
 set(CMAKE_ASM_COMPILER  ${tools}/bin/arm-none-eabi-as)
@@ -18,14 +15,14 @@ set(SIZE_COMMAND        ${tools}/bin/arm-none-eabi-size)
 set(OBJCOPY_COMMAND     ${tools}/bin/arm-none-eabi-objcopy)
 
 set(CHIP NRF51)
-set(SOFTDEVICE S110)
+set(SOFTDEVICE S130)
 
 set(BUILD_SHARED_LIBS OFF)
 
 # NRF related
-set(NRF_ROOT                $ENV{HOME}/nrf)
-set(NRF_SDK                 ${NRF_ROOT}/sdk)
-set(NRF_SDK_ROOT            ${NRF_SDK}/nrf51_sdk_latest)
+set(NRF_ROOT                $ENV{HOME}/bluepark/external)
+set(NRF_SDK                 ${NRF_ROOT})
+set(NRF_SDK_ROOT            ${NRF_SDK}/nRF5_SDK_11.0.0_89a8197)
 set(SDK_COMPONENTS          ${NRF_SDK_ROOT}/components)
 set(NRF_TOOLCHAIN           ${SDK_COMPONENTS}/toolchain)
 set(DEVICE_INCLUDES         ${SDK_COMPONENTS}/device)
@@ -39,17 +36,20 @@ set(CMAKE_C_FLAGS "-T${LINKER_SCRIPT} -DDEBUG -DBOARD_PCA10028 -DSOFTDEVICE_PRES
 
 include_directories(
     ${NRF_TOOLCHAIN}
+    ${NRF_TOOLCHAIN}/CMSIS/include
     ${NRF_GCC}
     ${SDK_COMPONENTS}/softdevice/${SOFTDEVICE}/headers
     ${NRF_SDK_ROOT}/examples/bsp
     ${SDK_COMPONENTS}/device
+    ${SDK_COMPONENTS}/drivers_nrf/delay
     ${SDK_COMPONENTS}/drivers_nrf/hal
+
 )
 
 set(SOURCE_FILES
     ${NRF_GCC}/gcc_startup_nrf51.s
     ${NRF_TOOLCHAIN}/system_nrf51.c
-    ${SDK_COMPONENTS}/drivers_nrf/hal/nrf_delay.c
+    ${SDK_COMPONENTS}/drivers_nrf/delay/nrf_delay.c
     main.c)
 
 add_executable(${MAIN_TARGET} ${SOURCE_FILES})
