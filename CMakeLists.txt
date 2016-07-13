@@ -40,7 +40,7 @@ set(CXX_ARC_FLAGS "${ARM_FLAGS} -mabi=aapcs -mfloat-abi=soft")
 set(LINK_ARC_FLAGS "${ARM_FLAGS} --specs=nosys.specs --specs=nano.specs -static -lm -lstdc++ -lsupc++")
 set(LINK_DEFAULT_FLAGS "-Xlinker -Map=${PROJECT_NAME}.map -Wl,--gc-sections")
 
-add_definitions(-D_LITTLE_ENDIAN=1 -D${CHIP} -DBOARD_${BOARD} -DDEBUG -D__HEAP_SIZE=0 -DBSP_DEFINES_ONLY)
+add_definitions(-D_LITTLE_ENDIAN=1 -D${CHIP} -DBOARD_${BOARD} -DDEBUG -D__HEAP_SIZE=0 -DBSP_DEFINES_ONLY -DSOFTDEVICE_PRESENT -DBLE_STACK_SUPPORT_REQD -DS130)
 
 # debugging
 set(LINK_BUILD_TYPE_FLAGS "-g")
@@ -80,8 +80,15 @@ add_custom_command(
 )
 
 add_custom_target(${PROJECT_NAME}.flash
-        COMMAND ${NRFJPROG_COMMAND} --chiperase --program ${PROJECT_NAME}.hex --verify
+        COMMAND ${NRFJPROG_COMMAND} --sectorerase --program ${PROJECT_NAME}.hex --verify
+        COMMAND ${NRFJPROG_COMMAND} --reset
+        )
+
+add_custom_target(${PROJECT_NAME}.flashall
+        COMMAND ${NRFJPROG_COMMAND} --chiperase --program ${NRF_SDK_ROOT}/components/softdevice/s130/hex/s130_nrf51_2.0.0_softdevice.hex
+        COMMAND ${NRFJPROG_COMMAND} --sectorerase --program ${PROJECT_NAME}.hex --verify
         COMMAND ${NRFJPROG_COMMAND} --reset
         )
 
 add_dependencies(${PROJECT_NAME}.flash ${PROJECT_NAME}.elf)
+add_dependencies(${PROJECT_NAME}.flashall ${PROJECT_NAME}.elf)
