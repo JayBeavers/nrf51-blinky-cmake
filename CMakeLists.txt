@@ -39,7 +39,7 @@ set(CXX_SPECIFIC_FLAGS "${CXX_SPECIFIC_FLAGS} -std=c++14")
 set(CXX_DEFAULT_FLAGS "${CXX_DEFAULT_FLAGS} -Wfatal-errors -Werror")
 
 # debugging
-set(CXX_BUILD_TYPE_FLAGS "-g -O3")
+set(CXX_BUILD_TYPE_FLAGS "-O0 -ggdb")
 set(LINK_BUILD_TYPE_FLAGS "-g")
 
 set(CXX_ARC_FLAGS "${ARM_FLAGS} -mfloat-abi=soft")
@@ -47,11 +47,11 @@ set(CXX_ARC_FLAGS "${ARM_FLAGS} -mfloat-abi=soft")
 set(CXX_SPECIFIC_FLAGS "${CXX_SPECIFIC_FLAGS} -ftemplate-backtrace-limit=0 -fvisibility-inlines-hidden -fno-rtti -fno-exceptions")
 
 set(CMAKE_CXX_FLAGS "${CXX_DEFAULT_FLAGS} ${CXX_SPECIFIC_FLAGS} ${CXX_ARC_FLAGS} ${CXX_BUILD_TYPE_FLAGS} ${CXX_DISABLED_WARNINGS}")
-set(CMAKE_C_FLAGS "-T${LINKER_SCRIPT} -D${CHIP} -DBOARD_${BOARD} -DBSP_DEFINES_ONLY -mcpu=cortex-m0 -mthumb -mabi=aapcs --std=gnu99 -Wall -Werror -O3 -g3 -mfloat-abi=soft -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums -L ${NRF_SDK_ROOT}/components/toolchain/gcc -lc -lnosys")
+set(CMAKE_C_FLAGS "-T${LINKER_SCRIPT} -D${CHIP} -DBOARD_${BOARD} -DBSP_DEFINES_ONLY -mcpu=cortex-m0 -mthumb -mabi=aapcs --std=gnu99 -Wall -Werror -O0 -ggdb -mfloat-abi=soft -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums -L ${NRF_SDK_ROOT}/components/toolchain/gcc -lc -lnosys")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -Map=${PROJECT_NAME}.map -mthumb -mabi=aapcs -mcpu=cortex-m0")
 set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp -DBSP_DEFINES_ONLY")
 
-add_definitions(-D_LITTLE_ENDIAN=1 -D${CHIP} -DBOARD_${BOARD} -DNDEBUG -D__HEAP_SIZE=0)
+add_definitions(-D_LITTLE_ENDIAN=1 -D${CHIP} -DBOARD_${BOARD} -DDEBUG -D__HEAP_SIZE=0)
 
 include_directories(
     ${NRF_SDK_ROOT}/components/toolchain
