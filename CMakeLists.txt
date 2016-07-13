@@ -32,26 +32,24 @@ set(MAIN_TARGET ${PROJECT_NAME}.elf)
 
 set(LINKER_SCRIPT ${PROJECT_SOURCE_DIR}/blinky_gcc_nrf51.ld)
 
-set(CXX_DEFAULT_FLAGS "${CXX_DEFAULT_FLAGS} -Wall")
-set(CXX_SPECIFIC_FLAGS "${CXX_SPECIFIC_FLAGS} -std=c++14")
+set(CXX_DEFAULT_FLAGS "-Wall -Wfatal-errors -Werror")
+set(CXX_SPECIFIC_FLAGS "-std=c++14 -ftemplate-backtrace-limit=0 -fvisibility-inlines-hidden -fno-rtti -fno-exceptions")
+set(C_SPECIFIC_FLAGS "--std=gnu99 -fno-strict-aliasing -fno-builtin --short-enums -L ${NRF_SDK_ROOT}/components/toolchain/gcc -lc -lnosys -T${LINKER_SCRIPT}")
+set(ARM_FLAGS "-mthumb -mcpu=cortex-m0 -ffunction-sections -fdata-sections")
+set(CXX_ARC_FLAGS "${ARM_FLAGS} -mabi=aapcs -mfloat-abi=soft")
+set(LINK_ARC_FLAGS "${ARM_FLAGS} --specs=nosys.specs --specs=nano.specs -static -lm -lstdc++ -lsupc++")
+set(LINK_DEFAULT_FLAGS "-Xlinker -Map=${PROJECT_NAME}.map -Wl,--gc-sections")
 
-# Stop compilation after first error
-set(CXX_DEFAULT_FLAGS "${CXX_DEFAULT_FLAGS} -Wfatal-errors -Werror")
+add_definitions(-D_LITTLE_ENDIAN=1 -D${CHIP} -DBOARD_${BOARD} -DDEBUG -D__HEAP_SIZE=0 -DBSP_DEFINES_ONLY)
 
 # debugging
-set(CXX_BUILD_TYPE_FLAGS "-O0 -ggdb")
 set(LINK_BUILD_TYPE_FLAGS "-g")
+set(CXX_BUILD_TYPE_FLAGS "-O0 -ggdb")
 
-set(CXX_ARC_FLAGS "${ARM_FLAGS} -mfloat-abi=soft")
-
-set(CXX_SPECIFIC_FLAGS "${CXX_SPECIFIC_FLAGS} -ftemplate-backtrace-limit=0 -fvisibility-inlines-hidden -fno-rtti -fno-exceptions")
-
+set(CMAKE_ASM_FLAGS "-x assembler-with-cpp")
 set(CMAKE_CXX_FLAGS "${CXX_DEFAULT_FLAGS} ${CXX_SPECIFIC_FLAGS} ${CXX_ARC_FLAGS} ${CXX_BUILD_TYPE_FLAGS} ${CXX_DISABLED_WARNINGS}")
-set(CMAKE_C_FLAGS "-T${LINKER_SCRIPT} -D${CHIP} -DBOARD_${BOARD} -DBSP_DEFINES_ONLY -mcpu=cortex-m0 -mthumb -mabi=aapcs --std=gnu99 -Wall -Werror -O0 -ggdb -mfloat-abi=soft -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums -L ${NRF_SDK_ROOT}/components/toolchain/gcc -lc -lnosys")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Xlinker -Map=${PROJECT_NAME}.map -mthumb -mabi=aapcs -mcpu=cortex-m0")
-set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp -DBSP_DEFINES_ONLY")
-
-add_definitions(-D_LITTLE_ENDIAN=1 -D${CHIP} -DBOARD_${BOARD} -DDEBUG -D__HEAP_SIZE=0)
+set(CMAKE_C_FLAGS   "${CXX_DEFAULT_FLAGS} ${C_SPECIFIC_FLAGS} ${CXX_ARC_FLAGS} ${CXX_BUILD_TYPE_FLAGS} ${CXX_DISABLED_WARNINGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${LINK_DEFAULT_FLAGS} ${LINK_ARC_FLAGS} ${LINK_BUILD_TYPE_FLAGS} -L ${CMAKE_SOURCE_DIR}")
 
 include_directories(
     ${NRF_SDK_ROOT}/components/toolchain
